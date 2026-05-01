@@ -5,83 +5,229 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="FitCoach">
-    <title>FitCoach Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <title>FitCoach Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0d0d0d; --bg2: #161616; --blue: #4A90E2; --pink: #E2709A; --text: #f5f5f0; }
+        :root {
+            --bg: #000000;
+            --card-bg: #1c1c1e;
+            --accent-blue: #0A84FF;
+            --accent-pink: #FF375F;
+            --text-main: #FFFFFF;
+            --text-secondary: #8E8E93;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; height: 100vh; overflow: hidden; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text-main); 
+            font-family: 'Inter', sans-serif; 
+            height: 100vh; 
+            overflow: hidden;
+        }
+
         #app { height: 100%; max-width: 500px; margin: 0 auto; position: relative; }
-        .screen { position: absolute; inset: 0; background: var(--bg); display: none; flex-direction: column; padding: 60px 20px; }
+
+        /* Экраны */
+        .screen { 
+            position: absolute; 
+            inset: 0; 
+            display: none; 
+            flex-direction: column; 
+            padding: 40px 20px;
+            animation: fadeIn 0.4s ease;
+        }
         .screen.active { display: flex; }
-        .btn { background: var(--bg2); padding: 25px; border-radius: 20px; border: 1px solid #333; color: white; cursor: pointer; margin-bottom: 15px; }
-        .ex-card { background: var(--bg2); border-radius: 20px; overflow: hidden; margin-bottom: 20px; border: 1px solid #222; }
-        .gif-box { width: 100%; height: 220px; background: #000; display: flex; align-items: center; justify-content: center; }
-        .gif-box img { width: 100%; height: 100%; object-fit: cover; }
-        .info { padding: 15px; }
-        .sets { display: flex; gap: 10px; margin-top: 10px; }
-        .set { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #444; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .set.done { background: var(--blue); border-color: var(--blue); }
-        .set.done-f { background: var(--pink); border-color: var(--pink); }
-        .progress-bar { height: 4px; background: #222; width: 100%; position: fixed; top: 0; left: 0; }
-        #fill { height: 100%; width: 0%; background: var(--blue); transition: 0.3s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Заголовки */
+        h1 { font-family: 'Syne', sans-serif; font-size: 38px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+        .subtitle { color: var(--text-secondary); font-size: 16px; margin-bottom: 30px; }
+
+        /* Карточки выбора профиля */
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 28px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid var(--glass);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: 0.2s;
+        }
+        .profile-card:active { transform: scale(0.96); background: #2c2c2e; }
+        .icon-circle { 
+            width: 60px; height: 60px; border-radius: 20px; 
+            display: flex; align-items: center; justify-content: center; font-size: 28px;
+        }
+
+        /* Список упражнений */
+        .workout-list { overflow-y: auto; flex: 1; padding-right: 4px; }
+        .workout-list::-webkit-scrollbar { display: none; }
+
+        .ex-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            border: 1px solid var(--glass);
+        }
+        .gif-area { width: 100%; height: 240px; background: #111; position: relative; }
+        .gif-area img { width: 100%; height: 100%; object-fit: cover; }
+        .ex-details { padding: 20px; }
+        .ex-name { font-size: 20px; font-weight: 600; margin-bottom: 12px; }
+
+        /* Подходы (Сеты) */
+        .sets-row { display: flex; gap: 12px; }
+        .set-item {
+            flex: 1; height: 50px; border-radius: 14px;
+            background: var(--glass);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: var(--text-secondary);
+            border: 1px solid transparent; transition: 0.3s;
+        }
+        .set-item.active { color: #fff; border-color: var(--accent-blue); background: rgba(10, 132, 255, 0.1); }
+        .set-item.done { background: var(--accent-blue); color: #fff; border: none; }
+        .set-item.done-pink { background: var(--accent-pink); color: #fff; border: none; }
+
+        /* Прогресс и кнопки */
+        .nav-bar { padding: 20px 0; background: var(--bg); }
+        .progress-container { height: 6px; background: var(--glass); border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+        #progress-fill { height: 100%; width: 0%; background: var(--accent-blue); transition: 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1); }
+        
+        .btn-finish {
+            width: 100%; padding: 20px; border-radius: 18px; border: none;
+            background: #fff; color: #000; font-weight: 700; font-size: 17px;
+        }
     </style>
 </head>
 <body>
+
 <div id="app">
-    <div class="screen active" id="s1">
-        <h1 style="font-family: 'Syne'; font-size: 42px; margin-bottom: 10px;">FitCoach</h1>
-        <p style="color: #666; margin-bottom: 40px;">Выбери профиль для начала</p>
-        <div class="btn" onclick="start('male')"><h2 style="color:var(--blue)">Мужчина 💪</h2><p>Сила и масса</p></div>
-        <div class="btn" onclick="start('female')"><h2 style="color:var(--pink)">Женщина 🌸</h2><p>Тонус и рельеф</p></div>
+    <!-- ЭКРАН 1: ВЫБОР -->
+    <div class="screen active" id="welcome">
+        <h1>FitCoach<span style="color: var(--accent-blue);">.</span></h1>
+        <p class="subtitle">Персональные планы тренировок</p>
+        
+        <div class="profile-card" onclick="startApp('male')">
+            <div class="icon-circle" style="background: rgba(10, 132, 255, 0.15); color: var(--accent-blue);">💪</div>
+            <div>
+                <div style="font-size: 20px; font-weight: 700;">Для тебя</div>
+                <div style="color: var(--text-secondary); font-size: 14px;">Сила • Масса • Выносливость</div>
+            </div>
+        </div>
+
+        <div class="profile-card" onclick="startApp('female')">
+            <div class="icon-circle" style="background: rgba(255, 55, 95, 0.15); color: var(--accent-pink);">🌸</div>
+            <div>
+                <div style="font-size: 20px; font-weight: 700;">Для жены</div>
+                <div style="color: var(--text-secondary); font-size: 14px;">Тонус • Рельеф • Гибкость</div>
+            </div>
+        </div>
     </div>
-    <div class="screen" id="s2">
-        <div class="progress-bar"><div id="fill"></div></div>
-        <div id="list" style="overflow-y: auto; flex: 1;"></div>
-        <button class="btn" style="width:100%; background:white; color:black; font-weight:bold;" onclick="location.reload()">Завершить</button>
+
+    <!-- ЭКРАН 2: ТРЕНИРОВКА -->
+    <div class="screen" id="workout">
+        <h1 id="user-title" style="font-size: 28px;">Тренировка</h1>
+        <div class="progress-container"><div id="progress-fill"></div></div>
+        
+        <div class="workout-list" id="exercise-list">
+            <!-- Сюда вставим упражнения через JS -->
+        </div>
+
+        <div class="nav-bar">
+            <button class="btn-finish" onclick="location.reload()">Завершить сессию</button>
+        </div>
     </div>
 </div>
+
 <script>
-    const GIFS = {
-        'Жим': 'https://media.giphy.com/media/3o7TKL9urUjCuMaS08/giphy.gif',
-        'Присед': 'https://media.giphy.com/media/l2SpVznfER2K9fT9e/giphy.gif',
-        'Мостик': 'https://media.giphy.com/media/3o7TKVUn7iM8FMEU24/giphy.gif'
+    const CONFIG = {
+        male: {
+            title: "Твой план 💪",
+            color: "#0A84FF",
+            exercises: [
+                { name: "Жим штанги лежа", sets: 4, gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ3bmZ6NHR6eGZ3bmZ6NHR6eGZ3bmZ6NHR6eGZ3bmZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKL9urUjCuMaS08/giphy.gif" },
+                { name: "Приседания со штангой", sets: 3, gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ3bmZ6NHR6eGZ3bmZ6NHR6eGZ3bmZ6NHR6eGZ3bmZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/l2SpVznfER2K9fT9e/giphy.gif" },
+                { name: "Тяга верхнего блока", sets: 4, gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ3bmZ6NHR6eGZ3bmZ6NHR6eGZ3bmZ6NHR6eGZ3bmZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxxS0L3E7Nm/giphy.gif" }
+            ]
+        },
+        female: {
+            title: "План жены 🌸",
+            color: "#FF375F",
+            exercises: [
+                { name: "Ягодичный мостик", sets: 4, gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ3bmZ6NHR6eGZ3bmZ6NHR6eGZ3bmZ6NHR6eGZ3bmZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKVUn7iM8FMEU24/giphy.gif" },
+                { name: "Выпады с гантелями", sets: 3, gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHpueGZ3bmZ6NHR6eGZ3bmZ6NHR6eGZ3bmZ6NHR6eGZ3bmZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/l2SpN6T9EUpC7H6z6/giphy.gif" },
+                { name: "Приседания плие", sets: 3, gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpueGZ3bmZ6NHR6eGZ3bmZ6NHR6eGZ3bmZ6NHR6eGZ3bmZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/l2SpVznfER2K9fT9e/giphy.gif" }
+            ]
+        }
     };
-    const DATA = {
-        male: [{n:'Жим штанги', s:4}, {n:'Приседания', s:3}],
-        female: [{n:'Ягодичный мостик', s:4}, {n:'Приседания', s:3}]
-    };
-    let cur = 'male'; let progress = {};
-    function start(g) {
-        cur = g; document.getElementById('s1').classList.remove('active');
-        document.getElementById('s2').classList.add('active');
-        document.getElementById('fill').style.background = g==='male'?'var(--blue)':'var(--pink)';
-        render();
+
+    let currentMode = 'male';
+    let progress = {};
+
+    function startApp(mode) {
+        currentMode = mode;
+        document.getElementById('welcome').classList.remove('active');
+        document.getElementById('workout').classList.add('active');
+        
+        const data = CONFIG[mode];
+        document.getElementById('user-title').innerText = data.title;
+        document.getElementById('progress-fill').style.background = data.color;
+        
+        renderExercises();
     }
-    function render() {
-        const L = document.getElementById('list'); L.innerHTML = '';
-        DATA[cur].forEach((ex, i) => {
-            progress[i] = 0;
-            let gif = ex.n.includes('Жим')?GIFS['Жим']:(ex.n.includes('мостик')?GIFS['Мостик']:GIFS['Присед']);
-            L.innerHTML += `<div class="ex-card"><div class="gif-box"><img src="${gif}"></div>
-                <div class="info"><h3>${ex.n}</h3><div class="sets" id="sets-${i}">${renderSets(i, ex.s)}</div></div></div>`;
+
+    function renderExercises() {
+        const list = document.getElementById('exercise-list');
+        list.innerHTML = '';
+        
+        CONFIG[currentMode].exercises.forEach((ex, exIdx) => {
+            progress[exIdx] = 0;
+            const card = document.createElement('div');
+            card.className = 'ex-card';
+            card.innerHTML = `
+                <div class="gif-area"><img src="${ex.gif}"></div>
+                <div class="ex-details">
+                    <div class="ex-name">${ex.name}</div>
+                    <div class="sets-row">
+                        ${Array.from({length: ex.sets}, (_, i) => `
+                            <div class="set-item" onclick="toggleSet(this, ${exIdx})">${i+1}</div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            list.appendChild(card);
         });
     }
-    function renderSets(idx, count) {
-        let h = ''; for(let i=1; i<=count; i++) h += `<div class="set" onclick="mark(this, ${idx})">${i}</div>`;
-        return h;
-    }
-    function mark(el, idx) {
+
+    function toggleSet(el, exIdx) {
         if(el.classList.contains('done')) return;
-        el.classList.add('done', cur==='male'?'done':'done-f');
-        progress[idx]++; updatePrg();
+        
+        const doneClass = currentMode === 'male' ? 'done' : 'done-pink';
+        el.classList.add('done', doneClass);
+        
+        progress[exIdx]++;
+        updateProgress();
     }
-    function updatePrg() {
-        let total = 0; let done = 0;
-        DATA[cur].forEach((ex, i) => { total += ex.s; done += progress[i]; });
-        document.getElementById('fill').style.width = (done/total*100) + '%';
+
+    function updateProgress() {
+        let totalSets = 0;
+        let completedSets = 0;
+        
+        CONFIG[currentMode].exercises.forEach((ex, idx) => {
+            totalSets += ex.sets;
+            completedSets += progress[idx];
+        });
+
+        const percent = (completedSets / totalSets) * 100;
+        document.getElementById('progress-fill').style.width = percent + '%';
     }
 </script>
+
 </body>
 </html>
