@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FitCoach">
+    <title>FitCoach Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0d0d0d; --bg2: #161616; --blue: #4A90E2; --pink: #E2709A; --text: #f5f5f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; height: 100vh; overflow: hidden; }
+        #app { height: 100%; max-width: 500px; margin: 0 auto; position: relative; }
+        .screen { position: absolute; inset: 0; background: var(--bg); display: none; flex-direction: column; padding: 60px 20px; }
+        .screen.active { display: flex; }
+        .btn { background: var(--bg2); padding: 25px; border-radius: 20px; border: 1px solid #333; color: white; cursor: pointer; margin-bottom: 15px; }
+        .ex-card { background: var(--bg2); border-radius: 20px; overflow: hidden; margin-bottom: 20px; border: 1px solid #222; }
+        .gif-box { width: 100%; height: 220px; background: #000; display: flex; align-items: center; justify-content: center; }
+        .gif-box img { width: 100%; height: 100%; object-fit: cover; }
+        .info { padding: 15px; }
+        .sets { display: flex; gap: 10px; margin-top: 10px; }
+        .set { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #444; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .set.done { background: var(--blue); border-color: var(--blue); }
+        .set.done-f { background: var(--pink); border-color: var(--pink); }
+        .progress-bar { height: 4px; background: #222; width: 100%; position: fixed; top: 0; left: 0; }
+        #fill { height: 100%; width: 0%; background: var(--blue); transition: 0.3s; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="screen active" id="s1">
+        <h1 style="font-family: 'Syne'; font-size: 42px; margin-bottom: 10px;">FitCoach</h1>
+        <p style="color: #666; margin-bottom: 40px;">Выбери профиль для начала</p>
+        <div class="btn" onclick="start('male')"><h2 style="color:var(--blue)">Мужчина 💪</h2><p>Сила и масса</p></div>
+        <div class="btn" onclick="start('female')"><h2 style="color:var(--pink)">Женщина 🌸</h2><p>Тонус и рельеф</p></div>
+    </div>
+    <div class="screen" id="s2">
+        <div class="progress-bar"><div id="fill"></div></div>
+        <div id="list" style="overflow-y: auto; flex: 1;"></div>
+        <button class="btn" style="width:100%; background:white; color:black; font-weight:bold;" onclick="location.reload()">Завершить</button>
+    </div>
+</div>
+<script>
+    const GIFS = {
+        'Жим': 'https://media.giphy.com/media/3o7TKL9urUjCuMaS08/giphy.gif',
+        'Присед': 'https://media.giphy.com/media/l2SpVznfER2K9fT9e/giphy.gif',
+        'Мостик': 'https://media.giphy.com/media/3o7TKVUn7iM8FMEU24/giphy.gif'
+    };
+    const DATA = {
+        male: [{n:'Жим штанги', s:4}, {n:'Приседания', s:3}],
+        female: [{n:'Ягодичный мостик', s:4}, {n:'Приседания', s:3}]
+    };
+    let cur = 'male'; let progress = {};
+    function start(g) {
+        cur = g; document.getElementById('s1').classList.remove('active');
+        document.getElementById('s2').classList.add('active');
+        document.getElementById('fill').style.background = g==='male'?'var(--blue)':'var(--pink)';
+        render();
+    }
+    function render() {
+        const L = document.getElementById('list'); L.innerHTML = '';
+        DATA[cur].forEach((ex, i) => {
+            progress[i] = 0;
+            let gif = ex.n.includes('Жим')?GIFS['Жим']:(ex.n.includes('мостик')?GIFS['Мостик']:GIFS['Присед']);
+            L.innerHTML += `<div class="ex-card"><div class="gif-box"><img src="${gif}"></div>
+                <div class="info"><h3>${ex.n}</h3><div class="sets" id="sets-${i}">${renderSets(i, ex.s)}</div></div></div>`;
+        });
+    }
+    function renderSets(idx, count) {
+        let h = ''; for(let i=1; i<=count; i++) h += `<div class="set" onclick="mark(this, ${idx})">${i}</div>`;
+        return h;
+    }
+    function mark(el, idx) {
+        if(el.classList.contains('done')) return;
+        el.classList.add('done', cur==='male'?'done':'done-f');
+        progress[idx]++; updatePrg();
+    }
+    function updatePrg() {
+        let total = 0; let done = 0;
+        DATA[cur].forEach((ex, i) => { total += ex.s; done += progress[i]; });
+        document.getElementById('fill').style.width = (done/total*100) + '%';
+    }
+</script>
+</body>
+</html>
